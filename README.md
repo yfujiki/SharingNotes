@@ -63,6 +63,17 @@ Starter Next.js app configured for Supabase usage across client and server conte
    }
    ```
 
+## Quality checks
+
+- `pnpm lint` – ESLint against the project with Prettier-aligned rules.
+- `pnpm typecheck` – TypeScript compiler in no-emit mode.
+- `pnpm format` – Prettier write mode for supported files.
+- `pnpm format:check` – Prettier verification without modifying files.
+
+## Editor integration
+
+The repo ships with `.vscode/settings.json` to enable Prettier formatting and ESLint fixes on save in VSCode or Cursor. Install the **Prettier - Code formatter** extension if your editor doesn’t already include it.
+
 ## Supabase Client Helpers
 
 Shared abstractions live under `lib/supabase/`:
