@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sharing Notes
 
-## Getting Started
+Starter Next.js app configured for Supabase usage across client and server contexts.
 
-First, run the development server:
+## Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js 22.x (LTS)
+- pnpm 9+
+- Supabase project (URL + anon/service keys)
+
+## Setup
+
+1. Install dependencies:
+
+   ```bash
+   pnpm install
+   ```
+
+2. Copy `.env.example` to `.env.local` and fill in your Supabase credentials:
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+   | Variable | Description |
+   | --- | --- |
+   | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL (public) |
+   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon public key |
+   | `SUPABASE_SERVICE_ROLE_KEY` | Service role key for trusted server usage |
+
+   > Keep the service role key out of client bundles and version control.
+
+3. Start the development server:
+
+   ```bash
+   pnpm dev
+   ```
+
+   Visit `http://localhost:3000` to confirm the app loads.
+
+4. Verify Supabase connectivity (optional but recommended):
+
+   ```bash
+   curl http://localhost:3000/api/supabase-health
+   ```
+
+   A healthy response looks like:
+
+   ```json
+   {
+     "ok": true,
+     "serverAuth": "ok",
+     "adminAuth": "ok",
+     "sampleUserCount": 0
+   }
+   ```
+
+## Supabase Client Helpers
+
+Shared abstractions live under `lib/supabase/`:
+
+- `lib/supabase/client.ts` – browser singleton for React client components/hooks.
+- `lib/supabase/server.ts` – server-side helpers for server components, API routes, and server actions.
+- `lib/supabase/env.ts` – guarded access to public Supabase environment variables.
+- `lib/supabase/env.server.ts` – server-only accessor for the service role key.
+
+Import the helpers that match your execution environment to avoid leaking secrets:
+
+```ts
+// app/some-client-component.tsx
+const supabase = getSupabaseBrowserClient();
+
+// app/api/example/route.ts
+const supabase = createSupabaseServerClient();
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Next Steps
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Scaffold a connectivity check page that pings Supabase from both server and client contexts.
+- Add lint/typecheck scripts and align tooling with the project strategy.
