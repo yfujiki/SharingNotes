@@ -48,11 +48,10 @@ Starter Next.js app configured for Supabase usage across client and server conte
 
 5. Verify Supabase connectivity (optional but recommended):
 
-   ```bash
-   curl http://localhost:3000/api/supabase-health
-   ```
+   - Browser UI: navigate to `http://localhost:3000/check` to see server/client diagnostics and masked environment info.
+   - API only: `curl http://localhost:3000/api/supabase-health`
 
-   A healthy response looks like:
+   A healthy API response looks like:
 
    ```json
    {
