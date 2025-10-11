@@ -30,7 +30,15 @@ Starter Next.js app configured for Supabase usage across client and server conte
 
    > Keep the service role key out of client bundles and version control.
 
-3. Start the development server:
+3. Validate your environment configuration:
+
+   ```bash
+   pnpm check-env
+   ```
+
+   The script reads `.env.local` and warns if required Supabase values are missing or still set to placeholders. It also runs automatically before `pnpm dev`.
+
+4. Start the development server:
 
    ```bash
    pnpm dev
@@ -38,7 +46,7 @@ Starter Next.js app configured for Supabase usage across client and server conte
 
    Visit `http://localhost:3000` to confirm the app loads.
 
-4. Verify Supabase connectivity (optional but recommended):
+5. Verify Supabase connectivity (optional but recommended):
 
    ```bash
    curl http://localhost:3000/api/supabase-health
