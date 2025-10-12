@@ -1,0 +1,6 @@
+# Supabase CLI configuration. Update `project_id` with your Supabase project ref
+# (found in the dashboard under Project Settings → General).
+project_id = "jsqalwkuikuvonjmgejh"
+
+# Optional overrides (e.g., ports) can be added following the Supabase CLI config schema.
+# Remove custom keys that the current CLI version does not recognise to avoid parse errors.

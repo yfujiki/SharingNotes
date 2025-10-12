@@ -27,7 +27,7 @@
 
 ## Proposed Technical Decisions
 1. **Schema management**
-   - Use Supabase CLI migrations stored in `supabase/migrations`. Target tables: `profiles` (user metadata) and `notes` (`user_id`, `title`, `content`, timestamps).
+   - Use Supabase CLI migrations stored in `supabase/migrations`. Target tables: `profiles` (user metadata); `teams` (team name, owner, timestamps); `team_members` (user <> team relationship with roles); `notes` (`team_id`, `author_id`, `title`, `content`, timestamps).
    - Define RLS policies: owners can CRUD their notes; optionally allow invited collaborators.
 2. **Auth integration**
    - Add Supabase Auth UI (either custom forms or `@supabase/auth-helpers-nextjs`).
@@ -46,17 +46,17 @@
 2. **Auth scaffolding**
    - Implement sign-in/sign-out components/routes; ensure session propagation server/client.
    - Update layout to show user avatar/status.
-3. **Notes listing**
-   - Build `/notes` page with server-side data fetching.
-   - Add client hooks for future CRUD.
+3. **Notes & teams UI**
+   - Build `/teams` onboarding (create team, invite members) and `/notes` listing filtered by selected team.
+   - Add client hooks for future CRUD (notes create/update/delete, membership management).
 4. **Diagnostics & docs**
    - Extend `/check` to surface note query results.
    - Update README/AGENTS docs with schema/auth instructions.
 
 ## Deliverables
-- Supabase migration files and seed scripts.
+- Supabase migration files and seed scripts covering profiles, teams, team_members, notes tables, and RLS policies.
 - Auth UI components linked to Supabase.
-- `/notes` page listing logged-in user’s notes.
+- `/teams` onboarding and `/notes` page listing notes for selected team.
 - Updated diagnostics and documentation (README, AGENTS, Knowledges if SOPs created).
 
 ## Dependencies & Coordination

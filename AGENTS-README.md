@@ -8,7 +8,7 @@
 - `Strategies/issue-2.md` – Notes domain schema and auth UX plan.
 
 ## Standard Operating Procedures
-- None documented yet. Create files under `Knowledges/` when procedures (e.g., migrations, route scaffolding) are formalized.
+- `Knowledges/supabase-cli-migrations.md` – Supabase CLI migration workflow and remote connection guidance.
 
 ## How to Contribute Documentation
 1. Update the relevant document (`AGENTS.md`, `Strategies/*`, or `Knowledges/*`).

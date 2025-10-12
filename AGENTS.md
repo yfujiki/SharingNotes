@@ -6,6 +6,7 @@ Sharing Notes is a Next.js App Router project wired to Supabase so engineers can
 ## Architecture & Module Layout
 - **App Router (`app/`)**: Contains the landing page, diagnostics UI under `check/`, and the `/api/supabase-health` route for server health checks. `layout.tsx` defines global fonts and metadata.
 - **Supabase Abstractions (`lib/supabase/`)**: Provides environment guards plus factory functions for browser, server-anon, and service-role clients. Server-only modules use `server-only` to stay out of client bundles.
+- **Database migrations (`supabase/`)**: CLI-driven directory with `config.toml` and timestamped SQL migrations (e.g., profiles, teams, team_members, notes tables with RLS). Run via Supabase CLI commands documented in future SOPs.
 - **Tooling (`scripts/`, configs)**: `scripts/check-env.ts` validates required Supabase env vars. ESLint/Prettier/TypeScript configuration is in `eslint.config.mjs`, `.prettierrc.json`, and `tsconfig.json`. Workspace editor defaults live in `.vscode/settings.json`.
 - **Strategies**: Planning docs live in `Strategies/`; see `issue-1.md` for the scaffolding roadmap. No SOPs are documented yet (`Knowledges/` absent).
 
