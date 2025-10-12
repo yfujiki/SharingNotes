@@ -4,7 +4,8 @@
 - `AGENTS.md` – Current overview of project goals, architecture, environment requirements, and deployment notes.
 
 ## Task Strategies
-- `Strategies/issue-1.md` – Project scaffolding & environments plan (Supabase wiring, diagnostics, deployment guidance).
+- `Strategies/issue-1.md` – Project scaffolding & environments plan.
+- `Strategies/issue-2.md` – Notes domain schema and auth UX plan.
 
 ## Standard Operating Procedures
 - None documented yet. Create files under `Knowledges/` when procedures (e.g., migrations, route scaffolding) are formalized.
