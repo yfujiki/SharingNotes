@@ -1,0 +1,19 @@
+# Documentation Index
+
+## System & Architecture
+- `AGENTS.md` – Current overview of project goals, architecture, environment requirements, and deployment notes.
+
+## Task Strategies
+- `Strategies/issue-1.md` – Project scaffolding & environments plan (Supabase wiring, diagnostics, deployment guidance).
+
+## Standard Operating Procedures
+- None documented yet. Create files under `Knowledges/` when procedures (e.g., migrations, route scaffolding) are formalized.
+
+## How to Contribute Documentation
+1. Update the relevant document (`AGENTS.md`, `Strategies/*`, or `Knowledges/*`).
+2. Add cross-references in a “Related Docs” section at the bottom of each file.
+3. Reflect new or updated docs here so the index stays authoritative.
+
+## Related Docs
+- `AGENTS.md` – System overview.
+- `README.md` – Developer quickstart and diagnostics commands.

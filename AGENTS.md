@@ -1,35 +1,38 @@
 # Repository Guidelines
 
-## Project Structure & Module Organization
-- `app/` holds Next.js App Router routes. Key entries: `page.tsx` (landing), `check/` (Supabase diagnostics), `api/supabase-health/` (health endpoint).
-- `lib/supabase/` centralizes browser, server, and service-role clients plus env utilities.
-- `scripts/check-env.ts` validates required Supabase environment variables.
-- Supporting configuration lives in `eslint.config.mjs`, `tsconfig.json`, `.vscode/settings.json`, and `.env.example`.
+## Project Overview
+Sharing Notes is a Next.js App Router project wired to Supabase so engineers can rapidly prototype authenticated note-sharing features. The codebase currently focuses on environment safety checks, Supabase connectivity, and deployment readiness instead of domain logic.
 
-## Build, Test, and Development Commands
-- `pnpm dev` — start the Next.js dev server.
-- `pnpm build` — produce an optimized production build.
-- `pnpm start` — run the compiled app locally.
-- `pnpm lint` — ESLint with Prettier alignment; fails on warnings.
-- `pnpm typecheck` — TypeScript compiler in `--noEmit` mode.
-- `pnpm check-env` — load `.env.local` and flag missing Supabase credentials (auto-runs before `pnpm dev`).
-- `pnpm format` / `pnpm format:check` — Prettier write or verify modes.
+## Architecture & Module Layout
+- **App Router (`app/`)**: Contains the landing page, diagnostics UI under `check/`, and the `/api/supabase-health` route for server health checks. `layout.tsx` defines global fonts and metadata.
+- **Supabase Abstractions (`lib/supabase/`)**: Provides environment guards plus factory functions for browser, server-anon, and service-role clients. Server-only modules use `server-only` to stay out of client bundles.
+- **Tooling (`scripts/`, configs)**: `scripts/check-env.ts` validates required Supabase env vars. ESLint/Prettier/TypeScript configuration is in `eslint.config.mjs`, `.prettierrc.json`, and `tsconfig.json`. Workspace editor defaults live in `.vscode/settings.json`.
+- **Strategies**: Planning docs live in `Strategies/`; see `issue-1.md` for the scaffolding roadmap. No SOPs are documented yet (`Knowledges/` absent).
 
-## Coding Style & Naming Conventions
-- TypeScript-first, using strict mode (`tsconfig.json`).
-- Prettier config: 2-space indentation (default), single quotes, trailing commas, 100-char line width.
-- ESLint extends `next/core-web-vitals` and `next/typescript` with `eslint-config-prettier` for formatting harmony.
-- Store shared utilities under `lib/`; keep client-entry files under `app/` and server scripts under `scripts/`.
+## Tech Stack & Integrations
+- **Framework**: Next.js 15 App Router with React 19 and TypeScript strict mode.
+- **Data Layer**: Supabase JS v2; no database schema committed yet. Service-role key is reserved for privileged server operations.
+- **Styling**: Uses default CSS modules (`globals.css`) with utility classes; Tailwind is not enabled despite dependencies.
+- **Build Tooling**: pnpm for package management; ESLint + Prettier for formatting; `tsx` for running Node/TS scripts.
 
-## Testing Guidelines
-- No automated test framework yet; add Vitest/Playwright as the product evolves.
-- For now, rely on `pnpm check-env`, `/check`, and `/api/supabase-health` diagnostics before submitting changes.
+## Environment & Secrets
+- Mandatory vars: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (server only). Guard utilities throw during boot if any are missing.
+- `.env.example` documents required values; `.env.local` is gitignored. `pnpm check-env` must succeed before local dev or CI runs.
 
-## Commit & Pull Request Guidelines
-- Use concise imperative commit messages (e.g., `Add Supabase health endpoint`).
-- Link GitHub issues in the PR description and summarize functional impact plus manual verifications (`/check`, curl health, lint/typecheck).
-- Include screenshots or terminal output when touching UI or diagnostics to prove success states.
+## Diagnostics & Operations
+- Visit `/check` during local or deployed runs to confirm Supabase session access, admin API permissions, and view masked env values.
+- `/api/supabase-health` returns a JSON heartbeat consumed by the client diagnostic.
+- `pnpm lint`, `pnpm typecheck`, and `pnpm format:check` enforce code quality; (tests not yet implemented).
 
-## Deployment Tips
-- Deploy via Vercel GitHub integration. Populate Preview & Production env vars (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`).
-- After each deploy, validate `{deployment}/check` and `{deployment}/api/supabase-health` return `ok`.
+## Deployment Notes
+- Deploy via Vercel’s GitHub integration. Configure the three Supabase env vars for Preview/Production in project settings. Verify `{deployment}/check` and `{deployment}/api/supabase-health` after each release.
+
+## Known Gaps & Next Steps
+- No automated tests or database schema migrations are present.
+- Tailwind dependency exists but is unused; confirm future styling direction.
+- Authentication UX and note-domain features remain unimplemented.
+
+## Related Docs
+- `AGENTS-README.md` — documentation index (create/update as docs evolve).
+- `Strategies/issue-1.md` — scaffolding strategy and work plan.
+- `README.md` — developer quickstart, diagnostics instructions.
