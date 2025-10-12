@@ -44,7 +44,7 @@ const mask = (value: string): string => {
 };
 
 const runServerChecks = async (): Promise<ServerCheckResult> => {
-  const serverClient = createSupabaseServerClient();
+  const serverClient = await createSupabaseServerClient();
 
   let sessionStatus: Status = 'ok';
   let sessionMessage = 'No active session (anonymous visitor).';

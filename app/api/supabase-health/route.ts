@@ -9,7 +9,7 @@ import {
 
 export async function GET() {
   try {
-    const serverClient = createSupabaseServerClient();
+    const serverClient = await createSupabaseServerClient();
     const serviceRoleClient = createSupabaseServiceRoleClient();
 
     const [{ error: serverError }, adminResult] = await Promise.all([

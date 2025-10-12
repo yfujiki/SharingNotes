@@ -1,29 +1,16 @@
-'use client';
+import { redirect } from 'next/navigation';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/hooks/use-auth';
+export default async function NotesPage() {
+  const supabase = await createSupabaseServerClient();
 
-export default function NotesPage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/auth/login');
-    }
-  }, [user, loading, router]);
-
-  if (loading) {
-    return (
-      <div className="flex min-h-[calc(100vh-73px)] items-center justify-center">
-        <p className="text-neutral-600 dark:text-neutral-400">Loading...</p>
-      </div>
-    );
-  }
-
+  // Middleware should handle this, but add as backup
   if (!user) {
-    return null;
+    redirect('/auth/login');
   }
 
   return (
@@ -37,10 +24,26 @@ export default function NotesPage() {
         </p>
       </div>
 
-      <div className="rounded-lg border border-neutral-200 bg-white p-8 text-center dark:border-neutral-800 dark:bg-neutral-900">
-        <p className="text-neutral-600 dark:text-neutral-400">
-          Notes functionality coming soon. This page is protected and requires authentication.
-        </p>
+      <div className="space-y-4">
+        <div className="rounded-lg border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
+          <h2 className="mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+            Server-Side Session ✅
+          </h2>
+          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+            This page is a <strong>server component</strong> that successfully read your session from cookies.
+          </p>
+          <div className="mt-4 rounded bg-neutral-100 p-3 font-mono text-sm dark:bg-neutral-800">
+            <div><strong>User ID:</strong> {user.id}</div>
+            <div><strong>Email:</strong> {user.email}</div>
+            <div><strong>Email Verified:</strong> {user.email_confirmed_at ? 'Yes' : 'No'}</div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-neutral-200 bg-white p-8 text-center dark:border-neutral-800 dark:bg-neutral-900">
+          <p className="text-neutral-600 dark:text-neutral-400">
+            Notes functionality coming soon. This page is protected and requires authentication.
+          </p>
+        </div>
       </div>
     </div>
   );

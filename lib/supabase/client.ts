@@ -1,6 +1,7 @@
 'use client';
 
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createBrowserClient as createSupabaseBrowserClient } from '@supabase/ssr';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { getSupabasePublicEnv } from './env';
 
 type BrowserSupabaseClient = SupabaseClient;
@@ -8,12 +9,25 @@ type BrowserSupabaseClient = SupabaseClient;
 const createBrowserClient = (): BrowserSupabaseClient => {
   const { url, anonKey } = getSupabasePublicEnv();
 
-  return createClient(url, anonKey, {
-    auth: {
-      persistSession: true,
-      storageKey: 'sb-sharing-notes-auth',
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
+  return createSupabaseBrowserClient(url, anonKey, {
+    cookies: {
+      getAll() {
+        return document.cookie.split('; ').map((cookie) => {
+          const [name, ...rest] = cookie.split('=');
+          return { name, value: rest.join('=') };
+        });
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          let cookie = `${name}=${value}`;
+          if (options?.maxAge) cookie += `; max-age=${options.maxAge}`;
+          if (options?.path) cookie += `; path=${options.path}`;
+          if (options?.domain) cookie += `; domain=${options.domain}`;
+          if (options?.sameSite) cookie += `; samesite=${options.sameSite}`;
+          if (options?.secure) cookie += '; secure';
+          document.cookie = cookie;
+        });
+      },
     },
   });
 };
