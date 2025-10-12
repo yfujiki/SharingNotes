@@ -96,3 +96,25 @@ const supabase = createSupabaseServerClient();
 
 - Scaffold a connectivity check page that pings Supabase from both server and client contexts.
 - Add lint/typecheck scripts and align tooling with the project strategy.
+- Verify Vercel deployment configuration once environment variables are set.
+
+## Deployment (Vercel)
+
+1. [Import the repository into Vercel](https://vercel.com/new) using the GitHub integration. During the import flow, choose this repo and Vercel will set up automatic deploys on every `git push`.
+2. Once the project is created, open **Settings → Environment Variables** and add the following for both **Preview** and **Production**:
+
+   | Variable | Source |
+   | --- | --- |
+   | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project → Settings → API → Project URL |
+   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase project → Settings → API → anon public key |
+   | `SUPABASE_SERVICE_ROLE_KEY` | Supabase project → Settings → API → service role key |
+
+   > Treat the service role key as sensitive; set it only for server environments (Preview/Production) and never expose it client-side.
+
+3. Commit your changes locally and push to the default branch (`git push`). Vercel will automatically build using `pnpm install` and `pnpm build`. You can also trigger a manual redeploy from the Vercel dashboard if needed.
+4. After the preview or production deploy finishes, visit:
+
+   - `{deployment-url}/check` to confirm server/client Supabase access and masked environment values.
+   - `{deployment-url}/api/supabase-health` to ensure the API endpoint responds with `{ "ok": true }`.
+
+If either check fails, re-verify the Vercel environment variables and Supabase project permissions.
