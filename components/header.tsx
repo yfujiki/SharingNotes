@@ -13,6 +13,18 @@ export function Header() {
           </Link>
           <nav className="hidden items-center gap-6 md:flex">
             <Link
+              href="/notes"
+              className="text-sm text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+            >
+              Notes
+            </Link>
+            <Link
+              href="/teams"
+              className="text-sm text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+            >
+              Teams
+            </Link>
+            <Link
               href="/check"
               className="text-sm text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
             >
