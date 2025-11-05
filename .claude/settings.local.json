@@ -10,7 +10,9 @@
       "mcp__serena__search_for_pattern",
       "mcp__serena__insert_after_symbol",
       "mcp__serena__think_about_whether_you_are_done",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npx supabase db reset)",
+      "Bash(npx supabase:*)"
     ],
     "deny": [],
     "ask": []

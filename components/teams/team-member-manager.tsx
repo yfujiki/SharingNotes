@@ -25,7 +25,6 @@ interface TeamMemberManagerProps {
 interface MemberWithProfile {
   user_id: string;
   role: string;
-  email: string;
   display_name?: string;
 }
 
@@ -46,40 +45,34 @@ export function TeamMemberManager({ team, onClose }: TeamMemberManagerProps) {
   const fetchMembers = async () => {
     const supabase = getSupabaseBrowserClient();
 
-    const { data, error } = await supabase
+    // First, get team members
+    const { data: teamMembersData, error: membersError } = await supabase
       .from('team_members')
-      .select(
-        `
-        user_id,
-        role,
-        profiles:user_id (
-          display_name
-        )
-      `,
-      )
+      .select('user_id, role')
       .eq('team_id', team.id);
 
-    if (error) {
-      console.error('Error fetching members:', error);
+    if (membersError) {
+      console.error('Error fetching members:', membersError);
+      setError(`Failed to load members: ${membersError.message}`);
       setLoading(false);
       return;
     }
 
-    // Fetch emails from auth.users using service endpoint
-    const { data: usersData, error: usersError } = await supabase.auth.admin.listUsers();
+    // Then fetch profiles for those users
+    const userIds = teamMembersData.map((m) => m.user_id);
 
-    if (usersError) {
-      console.error('Error fetching user emails:', usersError);
-    }
+    const { data: profilesData } = await supabase
+      .from('profiles')
+      .select('id, display_name')
+      .in('id', userIds);
 
-    const membersWithProfiles = data.map((member) => {
-      const profile = member.profiles as { display_name?: string } | null;
-      const user = usersData?.users.find((u) => u.id === member.user_id);
+    // Combine the data
+    const membersWithProfiles = teamMembersData.map((member) => {
+      const profile = profilesData?.find((p) => p.id === member.user_id);
 
       return {
         user_id: member.user_id,
         role: member.role,
-        email: user?.email || 'Unknown',
         display_name: profile?.display_name,
       };
     });
@@ -231,7 +224,7 @@ export function TeamMemberManager({ team, onClose }: TeamMemberManagerProps) {
                           {member.display_name || 'Unnamed User'}
                         </p>
                         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                          {member.email}
+                          User ID: {member.user_id.slice(0, 8)}...
                         </p>
                       </div>
 
