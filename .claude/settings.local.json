@@ -12,7 +12,10 @@
       "mcp__serena__think_about_whether_you_are_done",
       "Bash(npm run build:*)",
       "Bash(npx supabase db reset)",
-      "Bash(npx supabase:*)"
+      "Bash(npx supabase:*)",
+      "Bash(pnpm supabase:migrate:*)",
+      "Bash(tsx scripts/check-profiles.ts:*)",
+      "Bash(npx tsx:*)"
     ],
     "deny": [],
     "ask": []
