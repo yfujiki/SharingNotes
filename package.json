@@ -14,7 +14,11 @@
     "format:check": "prettier --check .",
     "supabase:migrate": "npx supabase db push",
     "supabase:reset": "npx supabase db reset",
-    "supabase:seed": "tsx scripts/seed.ts"
+    "supabase:seed": "tsx scripts/seed.ts",
+    "test:rls": "vitest run tests/rls.test.ts",
+    "test:rls:watch": "vitest tests/rls.test.ts",
+    "test:rls:pgtap": "npx supabase test db supabase/tests/rls-policies.test.pgtap.sql --local",
+    "test:rls:pgtap:linked": "npx supabase test db supabase/tests/rls-policies.test.pgtap.sql --linked"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
@@ -29,6 +33,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/ui": "^4.0.7",
     "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
@@ -36,6 +41,7 @@
     "prettier": "^3.6.2",
     "tailwindcss": "^4",
     "tsx": "^4.20.6",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.0.7"
   }
 }
