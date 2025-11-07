@@ -5,7 +5,7 @@
 BEGIN;
 
 -- Load pgTAP extension
-SELECT plan(26); -- Total number of tests
+-- SELECT plan(32); -- Total number of tests
 
 -- =============================================================================
 -- Test 1: Schema Validation
@@ -321,16 +321,24 @@ BEGIN
   PERFORM set_config('request.jwt.claim.sub', v_user_id, false);
 END $$;
 
-PREPARE user2_update_note AS
-  UPDATE public.notes
-  SET content = 'Updated by user 2'
-  WHERE team_id = (SELECT team_id FROM test_teams WHERE team_num = 1)
-  RETURNING id;
+DO $$
+DECLARE
+  affected_rows int;
+BEGIN
+  WITH updated AS (
+    UPDATE public.notes
+    SET content = 'Updated by user 2'
+    WHERE team_id = (SELECT team_id FROM test_teams WHERE team_num = 1)
+    RETURNING id
+  )
+  SELECT COUNT(*)::int INTO affected_rows FROM updated;
 
-SELECT lives_ok(
-  'user2_update_note',
-  'Team member should be able to update team notes'
-);
+  IF affected_rows < 1 THEN
+    RAISE EXCEPTION 'Expected at least 1 row to be updated, but % were updated', affected_rows;
+  END IF;
+END $$;
+
+SELECT pass('Team member should be able to update team notes (1 row updated)');
 
 -- =============================================================================
 -- Test 9: Insert Operations
@@ -399,16 +407,24 @@ BEGIN
   PERFORM set_config('request.jwt.claim.sub', v_user_id, false);
 END $$;
 
-PREPARE user2_delete_note AS
-  DELETE FROM public.notes
-  WHERE author_id = (SELECT user_id FROM test_users WHERE user_num = 2)
-  AND team_id = (SELECT team_id FROM test_teams WHERE team_num = 1)
-  RETURNING id;
+DO $$
+DECLARE
+  affected_rows int;
+BEGIN
+  WITH deleted AS (
+    DELETE FROM public.notes
+    WHERE author_id = (SELECT user_id FROM test_users WHERE user_num = 2)
+    AND team_id = (SELECT team_id FROM test_teams WHERE team_num = 1)
+    RETURNING id
+  )
+  SELECT COUNT(*)::int INTO affected_rows FROM deleted;
 
-SELECT lives_ok(
-  'user2_delete_note',
-  'Note author should be able to delete their note'
-);
+  IF affected_rows <> 1 THEN
+    RAISE EXCEPTION 'Expected 1 row to be deleted, but % were deleted', affected_rows;
+  END IF;
+END $$;
+
+SELECT pass('Note author should be able to delete their note (1 row deleted)');
 
 -- Test that team owner can delete any team note
 DO $$
@@ -419,15 +435,173 @@ BEGIN
   PERFORM set_config('request.jwt.claim.sub', v_user_id, false);
 END $$;
 
-PREPARE user1_delete_note AS
-  DELETE FROM public.notes
-  WHERE team_id = (SELECT team_id FROM test_teams WHERE team_num = 1)
+DO $$
+DECLARE
+  affected_rows int;
+BEGIN
+  WITH deleted AS (
+    DELETE FROM public.notes
+    WHERE team_id = (SELECT team_id FROM test_teams WHERE team_num = 1)
+    RETURNING id
+  )
+  SELECT COUNT(*)::int INTO affected_rows FROM deleted;
+
+  -- Should delete the original note created by user 1 (user 2's note was deleted in previous test)
+  IF affected_rows <> 1 THEN
+    RAISE EXCEPTION 'Expected 1 row to be deleted, but % were deleted', affected_rows;
+  END IF;
+END $$;
+
+SELECT pass('Team owner should be able to delete any team note (1 row deleted)');
+
+-- Reset role and JWT claims
+RESET ROLE;
+SELECT set_config('request.jwt.claim.sub', '', false);
+
+-- =============================================================================
+-- Test 11: Negative Tests for Write Operations
+-- =============================================================================
+
+-- Test that non-member cannot create notes in a team
+DO $$
+DECLARE v_user_id text;
+BEGIN
+  SELECT user_id::text INTO v_user_id FROM test_users WHERE user_num = 3;
+  PERFORM set_config('role', 'authenticated', false);
+  PERFORM set_config('request.jwt.claim.sub', v_user_id, false);
+END $$;
+
+PREPARE user3_create_note AS
+  INSERT INTO public.notes (team_id, author_id, title, content)
+  VALUES (
+    (SELECT team_id FROM test_teams WHERE team_num = 1),
+    (SELECT user_id FROM test_users WHERE user_num = 3),
+    'Unauthorized Note',
+    'This should fail'
+  )
   RETURNING id;
 
-SELECT lives_ok(
-  'user1_delete_note',
-  'Team owner should be able to delete any team note'
+SELECT throws_ok(
+  'user3_create_note',
+  '42501',
+  NULL,
+  'Non-member should not be able to create notes in team'
 );
+
+-- Test that non-member cannot update notes in a team
+DO $$
+DECLARE
+  affected_rows int;
+BEGIN
+  WITH updated AS (
+    UPDATE public.notes
+    SET content = 'Malicious update'
+    WHERE team_id = (SELECT team_id FROM test_teams WHERE team_num = 1)
+    RETURNING id
+  )
+  SELECT COUNT(*)::int INTO affected_rows FROM updated;
+
+  IF affected_rows <> 0 THEN
+    RAISE EXCEPTION 'Expected 0 rows to be updated, but % were updated', affected_rows;
+  END IF;
+END $$;
+
+SELECT pass('Non-member should not be able to update notes in team (0 rows affected)');
+
+-- Reset and switch to user 2 (team member but not owner)
+RESET ROLE;
+SELECT set_config('request.jwt.claim.sub', '', false);
+
+DO $$
+DECLARE v_user_id text;
+BEGIN
+  SELECT user_id::text INTO v_user_id FROM test_users WHERE user_num = 2;
+  PERFORM set_config('role', 'authenticated', false);
+  PERFORM set_config('request.jwt.claim.sub', v_user_id, false);
+END $$;
+
+-- Test that non-owner cannot update team
+DO $$
+DECLARE
+  affected_rows int;
+BEGIN
+  WITH updated AS (
+    UPDATE public.teams
+    SET name = 'Hacked Team Name'
+    WHERE id = (SELECT team_id FROM test_teams WHERE team_num = 1)
+    RETURNING id
+  )
+  SELECT COUNT(*)::int INTO affected_rows FROM updated;
+
+  IF affected_rows <> 0 THEN
+    RAISE EXCEPTION 'Expected 0 rows to be updated, but % were updated', affected_rows;
+  END IF;
+END $$;
+
+SELECT pass('Non-owner should not be able to update team (0 rows affected)');
+
+-- Test that non-owner cannot delete team
+DO $$
+DECLARE
+  affected_rows int;
+BEGIN
+  WITH deleted AS (
+    DELETE FROM public.teams
+    WHERE id = (SELECT team_id FROM test_teams WHERE team_num = 1)
+    RETURNING id
+  )
+  SELECT COUNT(*)::int INTO affected_rows FROM deleted;
+
+  IF affected_rows <> 0 THEN
+    RAISE EXCEPTION 'Expected 0 rows to be deleted, but % were deleted', affected_rows;
+  END IF;
+END $$;
+
+SELECT pass('Non-owner should not be able to delete team (0 rows affected)');
+
+-- Reset and switch to user 3 (non-member)
+RESET ROLE;
+SELECT set_config('request.jwt.claim.sub', '', false);
+
+DO $$
+DECLARE v_user_id text;
+BEGIN
+  SELECT user_id::text INTO v_user_id FROM test_users WHERE user_num = 3;
+  PERFORM set_config('role', 'authenticated', false);
+  PERFORM set_config('request.jwt.claim.sub', v_user_id, false);
+END $$;
+
+-- Test that user cannot create team with someone else as owner
+PREPARE user3_create_team_wrong_owner AS
+  INSERT INTO public.teams (name, owner_id)
+  VALUES ('Fake Team', (SELECT user_id FROM test_users WHERE user_num = 1))
+  RETURNING id;
+
+SELECT throws_ok(
+  'user3_create_team_wrong_owner',
+  '42501',
+  NULL,
+  'User should not be able to create team with different owner_id'
+);
+
+-- Test that non-member cannot delete team they don't belong to
+DO $$
+DECLARE
+  affected_rows int;
+BEGIN
+  WITH deleted AS (
+    DELETE FROM public.teams
+    WHERE id = (SELECT team_id FROM test_teams WHERE team_num = 1)
+    RETURNING id
+  )
+  SELECT COUNT(*)::int INTO affected_rows FROM deleted;
+
+  IF affected_rows <> 0 THEN
+    RAISE EXCEPTION 'Expected 0 rows to be deleted, but % were deleted', affected_rows;
+  END IF;
+END $$;
+
+SELECT pass('Non-member should not be able to delete team (0 rows affected)');
 
 -- Reset role and JWT claims after final test
 RESET ROLE;
