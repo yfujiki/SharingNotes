@@ -10,7 +10,7 @@
 ## Standard Operating Procedures
 - `Knowledges/supabase-cli-migrations.md` – Supabase CLI migration workflow and remote connection guidance.
 - `Knowledges/nextjs-supabase-auth-session-management.md` – How authentication sessions work in Next.js + Supabase (localStorage vs cookies, client vs server).
-- `Knowledges/rls-testing-with-pgtap-and-vitest.md` – Comprehensive guide to testing RLS policies with pgTAP and Vitest, including all issues encountered and solutions.
+- `Knowledges/rls-testing-with-pgtap.md` – Comprehensive guide to testing RLS policies with pgTAP, including all issues encountered and solutions.
 
 ## How to Contribute Documentation
 1. Update the relevant document (`AGENTS.md`, `Strategies/*`, or `Knowledges/*`).
