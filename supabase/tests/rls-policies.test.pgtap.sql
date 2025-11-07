@@ -5,7 +5,7 @@
 BEGIN;
 
 -- Load pgTAP extension
--- SELECT plan(32); -- Total number of tests
+SELECT no_plan();
 
 -- =============================================================================
 -- Test 1: Schema Validation

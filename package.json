@@ -12,11 +12,11 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "supabase:migrate": "npx supabase db push",
-    "supabase:reset": "npx supabase db reset",
+    "supabase:migrate": "supabase db push",
+    "supabase:reset": "supabase db reset",
     "supabase:seed": "tsx scripts/seed.ts",
-    "test:rls": "npx supabase test db supabase/tests/rls-policies.test.pgtap.sql --local",
-    "test:rls:linked": "npx supabase test db supabase/tests/rls-policies.test.pgtap.sql --linked"
+    "test:rls": "supabase test db supabase/tests/rls-policies.test.pgtap.sql --local",
+    "test:rls:linked": "supabase test db supabase/tests/rls-policies.test.pgtap.sql --linked"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
