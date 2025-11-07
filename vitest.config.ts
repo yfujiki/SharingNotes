@@ -1,7 +1,9 @@
 import { defineConfig } from 'vitest/config';
 import * as dotenv from 'dotenv';
 
-// Load environment variables from .env.local
+// Load test-specific environment first (.env.test.local), then fall back to .env.local
+// This allows testing against local Supabase (via .env.test.local) or remote (via .env.local)
+dotenv.config({ path: '.env.test.local' });
 dotenv.config({ path: '.env.local' });
 
 export default defineConfig({
